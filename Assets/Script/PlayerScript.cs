@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEngine;
 using Utils;
@@ -17,6 +18,10 @@ public class PlayerScript : MonoBehaviour
     private float _jumpForce = 3.0f;
     private bool _isGrounded = true;
 
+    public bool freeze;
+    public bool activeGrapple;
+    private Vector3 velocityToSet;
+    private bool enableMovementOnNextTouch;
 
 
     private struct KeyMapping
@@ -58,9 +63,10 @@ public class PlayerScript : MonoBehaviour
 
     void Update()
     {
-        foreach (var mapping in _keyMappings)
+        foreach (var mapping in _keyMappings) {
             if (Input.GetKey(mapping.KeyCode))
                 mapping.Action?.Invoke();
+        }
 
         playerCamera.transform.position = new Vector3(player.transform.position.x, player.transform.position.y + 1.75f, player.transform.position.z) + player.transform.forward * 0.2f;
 
@@ -75,6 +81,8 @@ public class PlayerScript : MonoBehaviour
 
         if (Physics.Raycast(player.transform.position, Vector3.down, 1.1f))
             _isGrounded = true;
+        if (freeze)
+            _rigidbody.linearVelocity = Vector3.zero;
     }
 
     private void InitializeKeyMappings()
@@ -157,5 +165,48 @@ public class PlayerScript : MonoBehaviour
 
         player.transform.position += dashDirection * _speed * 3;
         _dashCooldown = 0.0f;
+    }
+
+    public void JumpToPosition(Vector3 position, float trajectoryHeight)
+    {
+        activeGrapple = true;
+        velocityToSet = CalculateJumpVelocity(transform.position, position, trajectoryHeight);
+        Invoke(nameof(SetVelocity), 0.1f);
+        Invoke(nameof(ResetRestrictions), 3f);
+    }
+
+    public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endpoint, float trajectoryHeight)
+    {
+        float gravity = Physics.gravity.y;
+        float displacementY = endpoint.y - startPoint.y;
+        Vector3 displacementXZ = new Vector3(endpoint.x - startPoint.x, 0, endpoint.z - startPoint.z);
+
+        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
+        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity)
+            + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
+
+        return velocityXZ + velocityY;
+    }
+
+    private void SetVelocity()
+    {
+        _rigidbody.linearVelocity = velocityToSet;
+        enableMovementOnNextTouch = true;
+    }
+
+    private void ResetRestrictions()
+    {
+        activeGrapple = false;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (enableMovementOnNextTouch)
+        {
+            enableMovementOnNextTouch = false;
+            ResetRestrictions();
+
+            GetComponent<Grappling>().StopGrapple();
+        }
     }
 }
