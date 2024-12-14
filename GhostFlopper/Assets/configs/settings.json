@@ -1,0 +1,15 @@
+﻿{
+    "SOUND": {
+        "VOLUME": 0.5
+    },
+    "GRAPHICS": {
+        "FULLSCREEN": true,
+        "RESOLUTION": {
+            "WIDTH": 1920,
+            "HEIGHT": 1080
+        },
+        "VSYNC": true,
+        "ANTIALIASING": 8,
+        "SHADOWS": true
+    }
+}
