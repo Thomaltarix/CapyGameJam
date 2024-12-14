@@ -133,7 +133,7 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    private void MoveDown()
+    private void slide()
     {
         player.transform.position -= player.transform.up * _speed * Time.deltaTime;
     }
