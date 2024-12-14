@@ -16,7 +16,6 @@ public class PlayerScript : MonoBehaviour
     private Rigidbody _rigidbody;
     private float _jumpForce = 3.0f;
     private bool _isGrounded = true;
-    private readonly string _ballTag = "Ball";
 
 
 
@@ -158,13 +157,5 @@ public class PlayerScript : MonoBehaviour
 
         player.transform.position += dashDirection * _speed * 3;
         _dashCooldown = 0.0f;
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.tag == _ballTag)
-        {
-            collision.gameObject.SetActive(false);
-        }
     }
 }

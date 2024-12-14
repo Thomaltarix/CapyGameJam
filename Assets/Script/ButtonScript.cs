@@ -22,10 +22,20 @@ public class ButtonScript : MonoBehaviour
         }
     }
 
+    private void changeColliderColor(Collider collider)
+    {
+        Renderer renderer = collider.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            renderer.material = triggerColor;
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         isTrigger = true;
         changeColor();
+        changeColliderColor(other);
     }
 
     private void OnTriggerExit(Collider other)
