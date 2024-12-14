@@ -1,170 +1,324 @@
-using System.IO;
 using UnityEngine;
-using Utils;
 
 public class PlayerScript : MonoBehaviour
 {
     public Camera playerCamera;
-    public GameObject player;
-    private float _speed = 5.0f;
-
-    private const string SettingsPath = "Assets/configs/keybinds.json";
-    private MovementKeybinds _keybinds = new MovementKeybinds();
-
+    
     private float _dashCooldown = 0.0f;
-
-    private Rigidbody _rigidbody;
-    private float _jumpForce = 3.0f;
+    
     private bool _isGrounded = true;
-    private readonly string _ballTag = "Ball";
 
+    public bool freeze;
+    public bool activeGrapple;
+    private Vector3 _velocityToSet;
+    private bool _enableMovementOnNextTouch;
 
+    private bool _isSliding = false;
+    private float _slideTime;
+    private float _startYScale;
+    
+    [Header("References")]
+    public Transform playerObj;
+    private Rigidbody _rb;
+    
+    [Header("Movement")]
+    public float speed = 5.0f;
+    public float airMultiplier = 0.4f;
+    public float groundDrag = 6.0f;
+    
+    [Header("Jumping")]
+    public float jumpForce = 3.0f;
+    
+    [Header("Dashing")]
+    public float dashCooldown = 1.0f;
+    public float dashIntensity = 10.0f;
+    
+    [Header("Sliding")]
+    public float slideForce = 5.0f;
+    public float maxSlideTime = 0.5f;
+    
+    [Header("Wallrunning")]
+    public float wallRunForce;
+    public float wallClimbSpeed;
+    private float _wallRunTimer;
+    private bool _wallRunning;
+    private bool _upwardsRunning;
+    private bool _downwardsRunning;
 
-    private struct KeyMapping
-    {
-        public KeyCode KeyCode;
-        public System.Action Action;
-    }
+    [Header("Detection")]
+    private RaycastHit _leftWallhit;
+    private RaycastHit _rightWallhit;
+    private bool _wallLeft;
+    private bool _wallRight;
 
-    private KeyMapping[] _keyMappings;
+    [Header("Keybinds")]
+    public KeyCode jumpKey = KeyCode.Space;
+    public KeyCode dash = KeyCode.LeftShift;
+    public KeyCode slideKey = KeyCode.LeftControl;
+    public KeyCode upwardsRunKey = KeyCode.Q;
+    public KeyCode downwardsRunKey = KeyCode.E;
+    
+    private float _horizontal;
+    private float _vertical;
+    
+    private bool _readyToJump;
+    
+    private Vector3 _moveDirection;
 
     void Start()
     {
-        player = this.gameObject;
+        _rb = GetComponent<Rigidbody>();
+        _rb.freezeRotation = true;
         playerCamera = Camera.main;
+        
+        _startYScale = playerObj.localScale.y;
+        _readyToJump = true;
 
         if (playerCamera != null) {
-            playerCamera.transform.position = new Vector3(player.transform.position.x, player.transform.position.y + 1.75f, player.transform.position.z) + player.transform.forward * 0.2f;
-            playerCamera.transform.parent = player.transform;
+            playerCamera.transform.position = new Vector3(playerObj.position.x, playerObj.position.y + 1.75f, playerObj.position.z) + playerObj.forward * 0.2f;
+            playerCamera.transform.parent = playerObj;
         }
-
-        _rigidbody = player.GetComponent<Rigidbody>();
-        if (_rigidbody == null) {
-            Debug.LogError("Rigidbody component not found on player object.");
-            _rigidbody = player.AddComponent<Rigidbody>();
-            _rigidbody.useGravity = true;
-        }
-        _rigidbody.freezeRotation = true;
-
-        if (File.Exists(SettingsPath)) {
-            var json = File.ReadAllText(SettingsPath);
-            _keybinds = JsonUtility.FromJson<MovementKeybinds>(json);
-        } else {
-            Debug.LogWarning($"Settings file not found at {SettingsPath}. Using default keybinds.");
-            _keybinds = GetDefaultKeybinds();
-        }
-
-        InitializeKeyMappings();
     }
 
     void Update()
     {
-        foreach (var mapping in _keyMappings)
-            if (Input.GetKey(mapping.KeyCode))
-                mapping.Action?.Invoke();
+        _isGrounded = Physics.Raycast(transform.position, Vector3.down, playerObj.localScale.y / 2 + 0.1f);
 
-        playerCamera.transform.position = new Vector3(player.transform.position.x, player.transform.position.y + 1.75f, player.transform.position.z) + player.transform.forward * 0.2f;
+        playerCamera.transform.position = new Vector3(playerObj.position.x, playerObj.position.y + 1.75f, playerObj.position.z) + playerObj.forward * 0.2f;
 
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
-        player.transform.Rotate(Vector3.up, mouseX * 2);
-
+        playerObj.Rotate(Vector3.up, mouseX * 2);
+        
         playerCamera.transform.Rotate(Vector3.right, -mouseY * 2);
 
-        player.transform.rotation = Quaternion.Euler(0, player.transform.rotation.eulerAngles.y, 0);
+        playerObj.rotation = Quaternion.Euler(0, playerCamera.transform.eulerAngles.y, 0);
         _dashCooldown += Time.deltaTime;
-
-        if (Physics.Raycast(player.transform.position, Vector3.down, 1.1f))
+        
+        CheckForWall();
+        MyInput();
+        SpeedControl();
+        
+        if (Physics.Raycast(transform.position, Vector3.down, playerObj.localScale.y / 2 + 0.1f))
             _isGrounded = true;
+
+        if (freeze)
+            _rb.linearVelocity = Vector3.zero;
+
+        if (_isGrounded)
+            _rb.linearDamping = groundDrag;
+        else
+            _rb.linearDamping = 0;
     }
 
-    private void InitializeKeyMappings()
+    private void FixedUpdate()
     {
-        _keyMappings = new KeyMapping[]
-        {
-            new KeyMapping { KeyCode = _keybinds.forward, Action = MoveForward },
-            new KeyMapping { KeyCode = _keybinds.backward, Action = MoveBackward },
-            new KeyMapping { KeyCode = _keybinds.left, Action = MoveLeft },
-            new KeyMapping { KeyCode = _keybinds.right, Action = MoveRight },
-            new KeyMapping { KeyCode = _keybinds.up, Action = Jump },
-            new KeyMapping { KeyCode = _keybinds.down, Action = Slide },
-            new KeyMapping { KeyCode = _keybinds.dash, Action = Dash }
-        };
+        MovePlayer();
+        if (_isSliding)
+            SlidingMovement();
+        if (_wallRunning)
+            WallRunningMovement();
+    }
+    
+    private void CheckForWall()
+    {
+        _wallRight = Physics.Raycast(transform.position, transform.right, 1f) && Physics.Raycast(transform.position, transform.right, out RaycastHit hitRight) && hitRight.collider.CompareTag("Wall");
+        _wallLeft = Physics.Raycast(transform.position, -transform.right, 1f) && Physics.Raycast(transform.position, -transform.right, out RaycastHit hitLeft) && hitLeft.collider.CompareTag("Wall");
     }
 
-    private MovementKeybinds GetDefaultKeybinds()
+    private void MyInput()
     {
-        return new MovementKeybinds
-        {
-            forward = KeyCode.W,
-            backward = KeyCode.S,
-            left = KeyCode.A,
-            right = KeyCode.D,
-            up = KeyCode.Space,
-            down = KeyCode.LeftControl,
-            dash = KeyCode.LeftShift
-        };
+        _horizontal = Input.GetAxisRaw("Horizontal");
+        _vertical = Input.GetAxisRaw("Vertical");
+        
+        if (Input.GetKeyDown(jumpKey) && _isGrounded)
+            Jump();
+        
+        if (Input.GetKeyDown(dash))
+            Dash();
+        
+        if (Input.GetKeyDown(slideKey) && (!_isSliding) && (_horizontal != 0 || _vertical != 0))
+            StartSlide();
+
+        if (Input.GetKeyUp(slideKey))
+            EndSlide();
+
+        if(Input.GetKey(jumpKey) && _readyToJump && (_isGrounded || _wallRunning)) {
+            _readyToJump = false;
+            
+            Jump();
+            
+            Invoke(nameof(ResetJump), 0.2f);
+        }
+        
+        _upwardsRunning = Input.GetKey(upwardsRunKey);
+        _downwardsRunning = Input.GetKey(downwardsRunKey);
+
+        if((_wallLeft || _wallRight) && _vertical > 0 && !_isGrounded) {
+            if (!_wallRunning)
+                StartWallRun();
+        } else {
+            if (_wallRunning)
+                StopWallRun();
+        }
     }
 
-    private void MoveForward()
+    private void StartWallRun()
     {
-        player.transform.position += player.transform.forward * _speed * Time.deltaTime;
+        _wallRunning = true;
+    }
+    
+    
+    private void WallRunningMovement()
+    {
+        _rb.useGravity = false;
+        _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
+
+        Vector3 wallNormal = _wallRight ? _rightWallhit.normal : _leftWallhit.normal;
+
+        Vector3 wallForward = Vector3.Cross(wallNormal, transform.up);
+
+        if ((playerObj.forward - wallForward).magnitude > (playerObj.forward - -wallForward).magnitude)
+            wallForward = -wallForward;
+
+        _rb.AddForce(wallForward * wallRunForce, ForceMode.Force);
+
+        if (_upwardsRunning)
+            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, wallClimbSpeed, _rb.linearVelocity.z);
+        if (_downwardsRunning)
+            _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, -wallClimbSpeed, _rb.linearVelocity.z);
+
+        if (!(_wallLeft && _horizontal > 0) && !(_wallRight && _horizontal < 0))
+            _rb.AddForce(-wallNormal * 100, ForceMode.Force);
+    }
+    
+    private void StopWallRun()
+    {
+        _wallRunning = false;
+        _rb.useGravity = true;
     }
 
-    private void MoveBackward()
+    private void MovePlayer()
     {
-        player.transform.position -= player.transform.forward * _speed * Time.deltaTime;
+        _moveDirection = playerObj.forward * _vertical + playerObj.right * _horizontal;
+        if(_isGrounded)
+            _rb.AddForce(_moveDirection.normalized * speed * 10f, ForceMode.Force);
+        else
+            _rb.AddForce(_moveDirection.normalized * speed * 10f * airMultiplier, ForceMode.Force);
     }
-
-    private void MoveLeft()
+    
+    private void SpeedControl()
     {
-        player.transform.position -= player.transform.right * _speed * Time.deltaTime;
-    }
+        Vector3 flatVel = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
 
-    private void MoveRight()
-    {
-        player.transform.position += player.transform.right * _speed * Time.deltaTime;
+        //if(flatVel.magnitude > speed) {
+        //    Vector3 limitedVel = flatVel.normalized * speed;
+        //    _rb.linearVelocity = new Vector3(limitedVel.x, _rb.linearVelocity.y, limitedVel.z);
+        //}
     }
 
     private void Jump()
     {
-        if (_isGrounded) {
-            _rigidbody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
-            _isGrounded = false;
-        }
+        _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
+
+        _rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
 
-    private void Slide()
+    private void StartSlide()
     {
-        player.transform.position -= player.transform.up * _speed * Time.deltaTime;
+        _isSliding = true;
+
+        playerObj.localScale = new Vector3(playerObj.localScale.x, _startYScale / 2, playerObj.localScale.z);
+        playerCamera.transform.position = new Vector3(playerObj.position.x, playerObj.position.y + 0.5f, playerObj.position.z) + playerObj.forward * 0.2f;
+
+        _rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+        _slideTime = maxSlideTime;
+    }
+    
+    private void SlidingMovement()
+    {
+        Vector3 inputDirection = playerObj.forward * _vertical + playerObj.right * _horizontal;
+    
+        _rb.AddForce(inputDirection.normalized * slideForce, ForceMode.Impulse);
+
+        _slideTime = Mathf.Max(_slideTime - Time.deltaTime, 0);
+        if (_slideTime <= 0)
+            EndSlide();
     }
 
+    private void EndSlide()
+    {
+        _isSliding = false;
+
+        playerObj.localScale = new Vector3(playerObj.localScale.x, _startYScale, playerObj.localScale.z);
+        playerCamera.transform.position = new Vector3(playerObj.position.x, playerObj.position.y + 1.75f, playerObj.position.z) + playerObj.forward * 0.2f;
+    }
+ 
+    
     private void Dash()
     {
-        if (_dashCooldown < 1.0f)
+        if (_dashCooldown < dashCooldown)
             return;
 
         Vector3 dashDirection = Vector3.zero;
 
-        if (Input.GetKey(_keybinds.backward)) dashDirection -= player.transform.forward;
-        else if (Input.GetKey(_keybinds.left)) dashDirection -= player.transform.right;
-        else if (Input.GetKey(_keybinds.right)) dashDirection += player.transform.right;
-        //else if (Input.GetKey(_keybinds.up)) dashDirection += player.transform.up;
-        //else if (Input.GetKey(_keybinds.down)) dashDirection -= player.transform.up;
-        else dashDirection += player.transform.forward;
+        if (_vertical < 0) dashDirection -= playerObj.transform.forward;
+        else if (_horizontal < 0) dashDirection -= playerObj.transform.right;
+        else if (_horizontal > 0) dashDirection += playerObj.transform.right;
+        else dashDirection += playerObj.transform.forward;
 
         if (dashDirection != Vector3.zero)
             dashDirection.Normalize();
 
-        player.transform.position += dashDirection * _speed * 3;
+        _rb.AddForce(dashDirection * speed * dashIntensity, ForceMode.Impulse);
         _dashCooldown = 0.0f;
     }
 
-    void OnCollisionEnter(Collision collision)
+    public void JumpToPosition(Vector3 position, float trajectoryHeight)
     {
-        if (collision.gameObject.tag == _ballTag)
+        activeGrapple = true;
+        _velocityToSet = CalculateJumpVelocity(transform.position, position, trajectoryHeight);
+        Invoke(nameof(SetVelocity), 0.1f);
+        Invoke(nameof(ResetRestrictions), 3f);
+    }
+
+    public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endpoint, float trajectoryHeight)
+    {
+        float gravity = Physics.gravity.y;
+        float displacementY = endpoint.y - startPoint.y;
+        Vector3 displacementXZ = new Vector3(endpoint.x - startPoint.x, 0, endpoint.z - startPoint.z);
+
+        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
+        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity)
+            + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
+
+        return velocityXZ + velocityY;
+    }
+
+    private void SetVelocity()
+    {
+        _rb.linearVelocity = _velocityToSet;
+        _enableMovementOnNextTouch = true;
+    }
+
+    private void ResetRestrictions()
+    {
+        activeGrapple = false;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (_enableMovementOnNextTouch)
         {
-            collision.gameObject.SetActive(false);
+            _enableMovementOnNextTouch = false;
+            ResetRestrictions();
+
+            GetComponent<Grappling>().StopGrapple();
         }
+    }
+    
+    private void ResetJump()
+    {
+        _readyToJump = true;
     }
 }
