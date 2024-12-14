@@ -1,8 +1,22 @@
 using UnityEngine;
+using UnityEngine.UI;
+using Utils;
 
 public class PlayerScript : MonoBehaviour
 {
+
+    private static Color unactiveColor = new Color(130f / 255f, 130f / 255f, 130f / 255f, 200f / 255f);
+    private static Color activeColor = new Color(255, 255, 255, 200);
     public Camera playerCamera;
+    public GameObject player;
+    public GameObject canvaLeftArm;
+    public GameObject canvaRightArm;
+    public GameObject canvaLeftLeg;
+    public GameObject canvaRightLeg;
+    private float _speed = 5.0f;
+
+    private const string SettingsPath = "Assets/configs/keybinds.json";
+    private MovementKeybinds _keybinds = new MovementKeybinds();
 
     private float _dashCooldown = 0.0f;
 
@@ -12,6 +26,10 @@ public class PlayerScript : MonoBehaviour
     public bool activeGrapple;
     private Vector3 _velocityToSet;
     private bool _enableMovementOnNextTouch;
+    private bool _isLeftArm = true;
+    private bool _isRightArm = true;
+    private bool _isLeftLeg = true;
+    private bool _isRightLeg = true;
 
     private bool _isSliding = false;
     private float _slideTime;
@@ -109,6 +127,43 @@ public class PlayerScript : MonoBehaviour
             _rb.linearDamping = groundDrag;
         else
             _rb.linearDamping = 0;
+
+        if (Input.GetKeyDown(KeyCode.Alpha1)) {
+            Image panelImage = canvaLeftArm.GetComponent<Image>();
+            if (panelImage != null) {
+                panelImage.color = unactiveColor; // Change la couleur de l'arrière-plan
+            } else {
+                Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaLeftArm.");
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha2)) {
+            Image panelImage = canvaRightArm.GetComponent<Image>();
+            if (panelImage != null) {
+                panelImage.color = unactiveColor; // Change la couleur de l'arrière-plan
+            } else {
+                Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaRightArm.");
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha3)) {
+            Image panelImage = canvaLeftLeg.GetComponent<Image>();
+            if (panelImage != null) {
+                panelImage.color = unactiveColor; // Change la couleur de l'arrière-plan
+            } else {
+                Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaLeftLeg.");
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha4)) {
+            Image panelImage = canvaRightLeg.GetComponent<Image>();
+            if (panelImage != null) {
+                panelImage.color = unactiveColor; // Change la couleur de l'arrière-plan
+            } else {
+                Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaRightLeg.");
+            }
+        }
+
     }
 
     private void FixedUpdate()
