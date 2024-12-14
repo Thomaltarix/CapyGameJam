@@ -381,6 +381,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88bd3ce0e7d0de04983c4f240c24cb40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
+  manager: {fileID: 0}
 --- !u!65 &267910355
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -592,7 +594,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 0}
-  player: {fileID: 615299459}
+  freeze: 0
+  activeGrapple: 0
+  playerObj: {fileID: 615299463}
+  speed: 5
+  airMultiplier: 0.4
+  groundDrag: 6
+  jumpForce: 3
+  dashCooldown: 1
+  dashIntensity: 10
+  slideForce: 5
+  maxSlideTime: 0.5
+  wallRunForce: 0
+  wallClimbSpeed: 0
+  jumpKey: 32
+  dash: 304
+  slideKey: 306
+  upwardsRunKey: 113
+  downwardsRunKey: 101
 --- !u!136 &615299461
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -624,7 +643,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 615299459}
   serializedVersion: 4
-  m_Mass: 30
+  m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -643,6 +662,11 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!4 &615299463 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 400000, guid: f12f2d44b2688054986e54861cc211dc, type: 3}
+  m_PrefabInstance: {fileID: 615299458}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &880640558
 GameObject:
   m_ObjectHideFlags: 0
@@ -676,6 +700,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88bd3ce0e7d0de04983c4f240c24cb40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
+  manager: {fileID: 0}
 --- !u!65 &880640560
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1095,6 +1121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f665fc215e901cfcb97e5ddc0ff33151, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  door: {fileID: 0}
 --- !u!4 &1812371076
 Transform:
   m_ObjectHideFlags: 0

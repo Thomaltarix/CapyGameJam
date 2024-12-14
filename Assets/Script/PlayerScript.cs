@@ -3,9 +3,9 @@ using UnityEngine;
 public class PlayerScript : MonoBehaviour
 {
     public Camera playerCamera;
-    
+
     private float _dashCooldown = 0.0f;
-    
+
     private bool _isGrounded = true;
 
     public bool freeze;
@@ -16,27 +16,27 @@ public class PlayerScript : MonoBehaviour
     private bool _isSliding = false;
     private float _slideTime;
     private float _startYScale;
-    
+
     [Header("References")]
     public Transform playerObj;
     private Rigidbody _rb;
-    
+
     [Header("Movement")]
     public float speed = 5.0f;
     public float airMultiplier = 0.4f;
     public float groundDrag = 6.0f;
-    
+
     [Header("Jumping")]
     public float jumpForce = 3.0f;
-    
+
     [Header("Dashing")]
     public float dashCooldown = 1.0f;
     public float dashIntensity = 10.0f;
-    
+
     [Header("Sliding")]
     public float slideForce = 5.0f;
     public float maxSlideTime = 0.5f;
-    
+
     [Header("Wallrunning")]
     public float wallRunForce;
     public float wallClimbSpeed;
@@ -57,12 +57,12 @@ public class PlayerScript : MonoBehaviour
     public KeyCode slideKey = KeyCode.LeftControl;
     public KeyCode upwardsRunKey = KeyCode.Q;
     public KeyCode downwardsRunKey = KeyCode.E;
-    
+
     private float _horizontal;
     private float _vertical;
-    
+
     private bool _readyToJump;
-    
+
     private Vector3 _moveDirection;
 
     void Start()
@@ -70,7 +70,7 @@ public class PlayerScript : MonoBehaviour
         _rb = GetComponent<Rigidbody>();
         _rb.freezeRotation = true;
         playerCamera = Camera.main;
-        
+
         _startYScale = playerObj.localScale.y;
         _readyToJump = true;
 
@@ -89,16 +89,16 @@ public class PlayerScript : MonoBehaviour
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
         playerObj.Rotate(Vector3.up, mouseX * 2);
-        
+
         playerCamera.transform.Rotate(Vector3.right, -mouseY * 2);
 
         playerObj.rotation = Quaternion.Euler(0, playerCamera.transform.eulerAngles.y, 0);
         _dashCooldown += Time.deltaTime;
-        
+
         CheckForWall();
         MyInput();
         SpeedControl();
-        
+
         if (Physics.Raycast(transform.position, Vector3.down, playerObj.localScale.y / 2 + 0.1f))
             _isGrounded = true;
 
@@ -119,7 +119,7 @@ public class PlayerScript : MonoBehaviour
         if (_wallRunning)
             WallRunningMovement();
     }
-    
+
     private void CheckForWall()
     {
         _wallRight = Physics.Raycast(transform.position, transform.right, 1f) && Physics.Raycast(transform.position, transform.right, out RaycastHit hitRight) && hitRight.collider.CompareTag("Wall");
@@ -130,13 +130,13 @@ public class PlayerScript : MonoBehaviour
     {
         _horizontal = Input.GetAxisRaw("Horizontal");
         _vertical = Input.GetAxisRaw("Vertical");
-        
+
         if (Input.GetKeyDown(jumpKey) && _isGrounded)
             Jump();
-        
+
         if (Input.GetKeyDown(dash))
             Dash();
-        
+
         if (Input.GetKeyDown(slideKey) && (!_isSliding) && (_horizontal != 0 || _vertical != 0))
             StartSlide();
 
@@ -145,12 +145,12 @@ public class PlayerScript : MonoBehaviour
 
         if(Input.GetKey(jumpKey) && _readyToJump && (_isGrounded || _wallRunning)) {
             _readyToJump = false;
-            
+
             Jump();
-            
+
             Invoke(nameof(ResetJump), 0.2f);
         }
-        
+
         _upwardsRunning = Input.GetKey(upwardsRunKey);
         _downwardsRunning = Input.GetKey(downwardsRunKey);
 
@@ -167,8 +167,8 @@ public class PlayerScript : MonoBehaviour
     {
         _wallRunning = true;
     }
-    
-    
+
+
     private void WallRunningMovement()
     {
         _rb.useGravity = false;
@@ -191,7 +191,7 @@ public class PlayerScript : MonoBehaviour
         if (!(_wallLeft && _horizontal > 0) && !(_wallRight && _horizontal < 0))
             _rb.AddForce(-wallNormal * 100, ForceMode.Force);
     }
-    
+
     private void StopWallRun()
     {
         _wallRunning = false;
@@ -206,15 +206,15 @@ public class PlayerScript : MonoBehaviour
         else
             _rb.AddForce(_moveDirection.normalized * speed * 10f * airMultiplier, ForceMode.Force);
     }
-    
+
     private void SpeedControl()
     {
         Vector3 flatVel = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
 
-        //if(flatVel.magnitude > speed) {
-        //    Vector3 limitedVel = flatVel.normalized * speed;
-        //    _rb.linearVelocity = new Vector3(limitedVel.x, _rb.linearVelocity.y, limitedVel.z);
-        //}
+        if(flatVel.magnitude > speed) {
+            Vector3 limitedVel = flatVel.normalized * speed;
+            _rb.linearVelocity = new Vector3(limitedVel.x, _rb.linearVelocity.y, limitedVel.z);
+        }
     }
 
     private void Jump()
@@ -234,11 +234,11 @@ public class PlayerScript : MonoBehaviour
         _rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
         _slideTime = maxSlideTime;
     }
-    
+
     private void SlidingMovement()
     {
         Vector3 inputDirection = playerObj.forward * _vertical + playerObj.right * _horizontal;
-    
+
         _rb.AddForce(inputDirection.normalized * slideForce, ForceMode.Impulse);
 
         _slideTime = Mathf.Max(_slideTime - Time.deltaTime, 0);
@@ -253,8 +253,8 @@ public class PlayerScript : MonoBehaviour
         playerObj.localScale = new Vector3(playerObj.localScale.x, _startYScale, playerObj.localScale.z);
         playerCamera.transform.position = new Vector3(playerObj.position.x, playerObj.position.y + 1.75f, playerObj.position.z) + playerObj.forward * 0.2f;
     }
- 
-    
+
+
     private void Dash()
     {
         if (_dashCooldown < dashCooldown)
@@ -316,7 +316,7 @@ public class PlayerScript : MonoBehaviour
             GetComponent<Grappling>().StopGrapple();
         }
     }
-    
+
     private void ResetJump()
     {
         _readyToJump = true;
