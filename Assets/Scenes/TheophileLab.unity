@@ -381,8 +381,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88bd3ce0e7d0de04983c4f240c24cb40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 0
-  manager: {fileID: 0}
+  id: 1
+  manager: {fileID: 1812371075}
 --- !u!65 &267910355
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -701,7 +701,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
-  manager: {fileID: 0}
+  manager: {fileID: 1812371075}
 --- !u!65 &880640560
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1121,7 +1121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f665fc215e901cfcb97e5ddc0ff33151, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  door: {fileID: 0}
+  door: {fileID: 213295603}
 --- !u!4 &1812371076
 Transform:
   m_ObjectHideFlags: 0
