@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using Utils;
 
 public class PlayerScript : MonoBehaviour
 {
@@ -16,7 +15,6 @@ public class PlayerScript : MonoBehaviour
     private float _speed = 5.0f;
 
     private const string SettingsPath = "Assets/configs/keybinds.json";
-    private MovementKeybinds _keybinds = new MovementKeybinds();
 
     private float _dashCooldown = 0.0f;
 
