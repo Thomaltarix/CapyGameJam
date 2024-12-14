@@ -10,12 +10,13 @@ public class PlayerScript : MonoBehaviour
 
     private const string SettingsPath = "Assets/configs/keybinds.json";
     private MovementKeybinds _keybinds = new MovementKeybinds();
-    
+
     private float _dashCooldown = 0.0f;
-    
+
     private Rigidbody _rigidbody;
     private float _jumpForce = 3.0f;
     private bool _isGrounded = true;
+    private readonly string _ballTag = "Ball";
 
 
 
@@ -36,14 +37,14 @@ public class PlayerScript : MonoBehaviour
             playerCamera.transform.position = new Vector3(player.transform.position.x, player.transform.position.y + 1.75f, player.transform.position.z) + player.transform.forward * 0.2f;
             playerCamera.transform.parent = player.transform;
         }
-        
+
         _rigidbody = player.GetComponent<Rigidbody>();
         if (_rigidbody == null) {
             Debug.LogError("Rigidbody component not found on player object.");
             _rigidbody = player.AddComponent<Rigidbody>();
             _rigidbody.useGravity = true;
-            _rigidbody.freezeRotation = true;
         }
+        _rigidbody.freezeRotation = true;
 
         if (File.Exists(SettingsPath)) {
             var json = File.ReadAllText(SettingsPath);
@@ -61,13 +62,13 @@ public class PlayerScript : MonoBehaviour
         foreach (var mapping in _keyMappings)
             if (Input.GetKey(mapping.KeyCode))
                 mapping.Action?.Invoke();
-    
+
         playerCamera.transform.position = new Vector3(player.transform.position.x, player.transform.position.y + 1.75f, player.transform.position.z) + player.transform.forward * 0.2f;
 
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
         player.transform.Rotate(Vector3.up, mouseX * 2);
-        
+
         playerCamera.transform.Rotate(Vector3.right, -mouseY * 2);
 
         player.transform.rotation = Quaternion.Euler(0, player.transform.rotation.eulerAngles.y, 0);
@@ -137,14 +138,14 @@ public class PlayerScript : MonoBehaviour
     {
         player.transform.position -= player.transform.up * _speed * Time.deltaTime;
     }
-    
+
     private void Dash()
     {
         if (_dashCooldown < 1.0f)
             return;
 
         Vector3 dashDirection = Vector3.zero;
-    
+
         if (Input.GetKey(_keybinds.backward)) dashDirection -= player.transform.forward;
         else if (Input.GetKey(_keybinds.left)) dashDirection -= player.transform.right;
         else if (Input.GetKey(_keybinds.right)) dashDirection += player.transform.right;
@@ -157,5 +158,13 @@ public class PlayerScript : MonoBehaviour
 
         player.transform.position += dashDirection * _speed * 3;
         _dashCooldown = 0.0f;
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == _ballTag)
+        {
+            collision.gameObject.SetActive(false);
+        }
     }
 }
