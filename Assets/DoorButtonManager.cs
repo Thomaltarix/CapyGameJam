@@ -7,11 +7,15 @@ public class DoorButtonManager : MonoBehaviour
 
     public GameObject door;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private Vector3 originalPos;
+
+    private bool shown = true;
+
     void Start()
     {
         doorStates.Add(false);
         doorStates.Add(false);
+        originalPos = door.transform.position;
     }
 
     public void updateDoorState(int id, bool state)
@@ -19,19 +23,23 @@ public class DoorButtonManager : MonoBehaviour
         doorStates[id] = state;
         if (doorStates[0] && doorStates[1])
         {
-            door.SetActive(false);
+            // door.SetActive(false);
+            shown = false;
         } else {
-            door.SetActive(true);
+            // door.SetActive(true);
+            shown = true;
         }
     }
 
     void openDoor() {
 
     }
-    // Update is called once per frame
+
     void Update()
     {
-
+        if (door.transform.position.y >= originalPos.y - 5 && !shown)
+            door.transform.position = new Vector3(door.transform.position.x, door.transform.position.y - 0.1f, door.transform.position.z);
+        if (door.transform.position.y < originalPos.y && shown)
+            door.transform.position = new Vector3(door.transform.position.x, door.transform.position.y + 0.1f, door.transform.position.z);
     }
-
 }
