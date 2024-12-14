@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 22afbdbdbfe2d47478705482750f05d3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 281743
+  packageName: Robot Humanoid low_poly
+  packageVersion: 1.0
+  assetPath: Assets/Quad.Vertex/Materials/robot_mat_grey.mat
+  uploadId: 655713

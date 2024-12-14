@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d11b03780f97c9c40b06334d1f3fb857
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 281743
+  packageName: Robot Humanoid low_poly
+  packageVersion: 1.0
+  assetPath: Assets/Quad.Vertex/Prefab/Robot_green.prefab
+  uploadId: 655713
