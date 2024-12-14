@@ -86,7 +86,7 @@ public class PlayerScript : MonoBehaviour
             new KeyMapping { KeyCode = _keybinds.left, Action = MoveLeft },
             new KeyMapping { KeyCode = _keybinds.right, Action = MoveRight },
             new KeyMapping { KeyCode = _keybinds.up, Action = Jump },
-            new KeyMapping { KeyCode = _keybinds.down, Action = MoveDown },
+            new KeyMapping { KeyCode = _keybinds.down, Action = Slide },
             new KeyMapping { KeyCode = _keybinds.dash, Action = Dash }
         };
     }
@@ -133,7 +133,7 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    private void slide()
+    private void Slide()
     {
         player.transform.position -= player.transform.up * _speed * Time.deltaTime;
     }
