@@ -109,6 +109,8 @@ public class ThrowBodyPart : MonoBehaviour
             rb.isKinematic = true;
             arm.transform.parent = player.transform;
 
+            if (arm == equippedArm) equippedArm = null;
+
             if (playerArm == playerLeftArm) activateLimbView(canvaLeftArm);
             else if (playerArm == playerRightArm) activateLimbView(canvaRightArm);
 
