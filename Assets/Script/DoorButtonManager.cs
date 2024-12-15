@@ -11,6 +11,8 @@ public class DoorButtonManager : MonoBehaviour
 
     private bool shown = true;
 
+    public float transormValue;
+
     void Start()
     {
         doorStates.Add(false);
@@ -37,7 +39,7 @@ public class DoorButtonManager : MonoBehaviour
 
     void Update()
     {
-        if (door.transform.position.y >= originalPos.y - 5 && !shown)
+        if (door.transform.position.y >= originalPos.y - transormValue && !shown)
             door.transform.position = new Vector3(door.transform.position.x, door.transform.position.y - 0.1f, door.transform.position.z);
         if (door.transform.position.y < originalPos.y && shown)
             door.transform.position = new Vector3(door.transform.position.x, door.transform.position.y + 0.1f, door.transform.position.z);
