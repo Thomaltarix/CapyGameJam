@@ -1,12 +1,7 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PlayerScript : MonoBehaviour
 {
-
-    private static Color unactiveColor = new Color(130f / 255f, 130f / 255f, 130f / 255f, 200f / 255f);
-    private static Color activeColor = new Color(255, 255, 255, 200);
-
     public bool freeze;
     public bool activeGrapple;
 
@@ -16,10 +11,6 @@ public class PlayerScript : MonoBehaviour
     [Header("References")]
     public Camera playerCamera;
     public Transform playerObj;
-    public GameObject canvaLeftArm;
-    public GameObject canvaRightArm;
-    public GameObject canvaLeftLeg;
-    public GameObject canvaRightLeg;
     private Rigidbody _rb;
 
     [Header("Movement")]
@@ -117,42 +108,6 @@ public class PlayerScript : MonoBehaviour
             _rb.linearDamping = groundDrag;
         else
             _rb.linearDamping = 0;
-
-        if (Input.GetKeyDown(KeyCode.Alpha1)) {
-            Image panelImage = canvaLeftArm.GetComponent<Image>();
-            if (panelImage != null) {
-                panelImage.color = unactiveColor;
-            } else {
-                Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaLeftArm.");
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha2)) {
-            Image panelImage = canvaRightArm.GetComponent<Image>();
-            if (panelImage != null) {
-                panelImage.color = unactiveColor;
-            } else {
-                Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaRightArm.");
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha3)) {
-            Image panelImage = canvaLeftLeg.GetComponent<Image>();
-            if (panelImage != null) {
-                panelImage.color = unactiveColor;
-            } else {
-                Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaLeftLeg.");
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha4)) {
-            Image panelImage = canvaRightLeg.GetComponent<Image>();
-            if (panelImage != null) {
-                panelImage.color = unactiveColor;
-            } else {
-                Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaRightLeg.");
-            }
-        }
 
     }
 
