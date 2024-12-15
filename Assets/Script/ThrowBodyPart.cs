@@ -34,7 +34,7 @@ public class ThrowBodyPart : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E)) EquipArm(leftArm, playerLeftArm);
         if (Input.GetKeyDown(KeyCode.R)) EquipArm(rightArm, playerRightArm);
-        if (Input.GetKeyDown(KeyCode.C) && equippedArm != null) ThrowBP(equippedArm);
+        if (Input.GetKeyDown(KeyCode.Mouse0) && equippedArm != null) ThrowBP(equippedArm);
         if (Input.GetKeyDown(KeyCode.F))
         {
             TryReequipArm(leftArm, playerLeftArm);
@@ -78,10 +78,10 @@ public class ThrowBodyPart : MonoBehaviour
 
         playerArm.SetActive(false);
         equippedArm = arm;
-        equippedArm.transform.position = player.transform.position + player.transform.forward * (arm == leftArm ? 0.6f : 0.6f) + player.transform.right * (arm == leftArm ? 0.5f : -0.5f) + Vector3.up * 1.5f;
+        equippedArm.transform.position = player.transform.position + player.transform.forward * 0.6f + player.transform.right * (arm == leftArm ? -0.5f : 0.5f) + Vector3.up * 1.5f;
         equippedArm.transform.parent = player.transform;
+        equippedArm.transform.rotation = player.transform.rotation * Quaternion.Euler(90, 0, 0);
         equippedArm.SetActive(true);
-        //set canva blue
     }
 
     private void ResetArm(GameObject playerArm)
@@ -112,7 +112,6 @@ public class ThrowBodyPart : MonoBehaviour
             if (playerArm == playerLeftArm) activateLimbView(canvaLeftArm);
             else if (playerArm == playerRightArm) activateLimbView(canvaRightArm);
 
-            //canva white
             Debug.Log("Re-equipped arm: " + arm.name);
         }
     }

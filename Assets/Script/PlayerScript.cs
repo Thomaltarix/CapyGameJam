@@ -125,43 +125,6 @@ public class PlayerScript : MonoBehaviour
             _rb.linearDamping = groundDrag;
         else
             _rb.linearDamping = 0;
-
-        if (Input.GetKeyDown(KeyCode.Alpha1)) {
-            Image panelImage = canvaLeftArm.GetComponent<Image>();
-            if (panelImage != null) {
-                panelImage.color = unactiveColor;
-            } else {
-                Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaLeftArm.");
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha2)) {
-            Image panelImage = canvaRightArm.GetComponent<Image>();
-            if (panelImage != null) {
-                panelImage.color = unactiveColor;
-            } else {
-                Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaRightArm.");
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha3)) {
-            Image panelImage = canvaLeftLeg.GetComponent<Image>();
-            if (panelImage != null) {
-                panelImage.color = unactiveColor;
-            } else {
-                Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaLeftLeg.");
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha4)) {
-            Image panelImage = canvaRightLeg.GetComponent<Image>();
-            if (panelImage != null) {
-                panelImage.color = unactiveColor;
-            } else {
-                Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaRightLeg.");
-            }
-        }
-
     }
 
     private void FixedUpdate()
