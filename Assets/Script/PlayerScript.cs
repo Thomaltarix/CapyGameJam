@@ -96,8 +96,11 @@ public class PlayerScript : MonoBehaviour
     {
         _isGrounded = Physics.Raycast(transform.position + Vector3.up, Vector3.down , 1.1f);
 
-        if (Physics.Raycast(transform.position + Vector3.up, Vector3.down , 1.1f) && Physics.Raycast(transform.position + Vector3.up, Vector3.down , out RaycastHit hit) && hit.collider.CompareTag("killzone"))
+        if (Physics.Raycast(transform.position + Vector3.up, Vector3.down , 1.1f) && Physics.Raycast(transform.position + Vector3.up, Vector3.down , out RaycastHit hit) && hit.collider.CompareTag("killzone")) {
             transform.position = spawnPoint.transform.position;
+            var Audio = GetComponent<AudioSource>();
+            Audio.Play();
+        }
 
         playerCamera.transform.position = new Vector3(playerObj.position.x, playerObj.position.y + 1.75f, playerObj.position.z) + playerObj.forward * 0.2f;
 
