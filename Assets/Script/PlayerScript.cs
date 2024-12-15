@@ -98,7 +98,9 @@ public class PlayerScript : MonoBehaviour
 
     void Update()
     {
-        _isGrounded = Physics.Raycast(transform.position, Vector3.down, playerObj.localScale.y / 2 + 0.1f);
+        _isGrounded = Physics.Raycast(transform.position + Vector3.up, Vector3.down , 1.1f);
+        Debug.DrawRay(transform.position + Vector3.up, Vector3.down * 1.1f, Color.red);
+        Debug.Log($"Grounded: {_isGrounded}");
 
         playerCamera.transform.position = new Vector3(playerObj.position.x, playerObj.position.y + 1.75f, playerObj.position.z) + playerObj.forward * 0.2f;
 
@@ -115,8 +117,8 @@ public class PlayerScript : MonoBehaviour
         MyInput();
         SpeedControl();
 
-        if (Physics.Raycast(transform.position, Vector3.down, playerObj.localScale.y / 2 + 0.1f))
-            _isGrounded = true;
+        // if (Physics.Raycast(transform.position, Vector3.down, playerObj.localScale.y / 2 + 0.4f))
+        //     _isGrounded = true;
 
         if (freeze)
             _rb.linearVelocity = Vector3.zero;
@@ -272,6 +274,7 @@ public class PlayerScript : MonoBehaviour
 
     private void Jump()
     {
+        Debug.Log("Jumping");
         _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
 
         _rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
@@ -374,4 +377,5 @@ public class PlayerScript : MonoBehaviour
     {
         _readyToJump = true;
     }
+
 }
