@@ -191,7 +191,7 @@ public class PlayerScript : MonoBehaviour
 
         if (Input.GetKeyUp(slideKey))
             EndSlide();
-
+    
         if(Input.GetKey(jumpKey) && _readyToJump && (_isGrounded || _wallRunning)) {
             _readyToJump = false;
 
