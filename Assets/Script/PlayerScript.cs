@@ -92,7 +92,11 @@ public class PlayerScript : MonoBehaviour
         float mouseY = Input.GetAxis("Mouse Y");
         playerObj.Rotate(Vector3.up, mouseX * 2);
 
-        playerCamera.transform.Rotate(Vector3.right, -mouseY * 2);
+
+        float xRot = playerCamera.transform.eulerAngles.x - mouseY * 2;
+        if (xRot > 180)
+            xRot -= 360;
+        playerCamera.transform.localEulerAngles = new Vector3(Mathf.Clamp(xRot, -90, 90), playerCamera.transform.localEulerAngles.y, 0);
 
         playerObj.rotation = Quaternion.Euler(0, playerCamera.transform.eulerAngles.y, 0);
         _dashCooldown += Time.deltaTime;
