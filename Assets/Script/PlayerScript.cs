@@ -20,6 +20,7 @@ public class PlayerScript : MonoBehaviour
     public GameObject canvaRightArm;
     public GameObject canvaLeftLeg;
     public GameObject canvaRightLeg;
+    public GameObject spawnPoint;
     private Rigidbody _rb;
 
     [Header("Movement")]
@@ -84,6 +85,7 @@ public class PlayerScript : MonoBehaviour
 
         _startYScale = playerObj.localScale.y;
         _readyToJump = true;
+        playerObj.position = spawnPoint.transform.position;
 
         if (playerCamera != null) {
             playerCamera.transform.position = new Vector3(playerObj.position.x, playerObj.position.y + 1.75f, playerObj.position.z) + playerObj.forward * 0.2f;
@@ -94,6 +96,9 @@ public class PlayerScript : MonoBehaviour
     void Update()
     {
         _isGrounded = Physics.Raycast(transform.position + Vector3.up, Vector3.down , 1.1f);
+
+        if (Physics.Raycast(transform.position + Vector3.up, Vector3.down , 1.1f) && Physics.Raycast(transform.position + Vector3.up, Vector3.down , out RaycastHit hit) && hit.collider.CompareTag("killzone"))
+            transform.position = spawnPoint.transform.position;
 
         playerCamera.transform.position = new Vector3(playerObj.position.x, playerObj.position.y + 1.75f, playerObj.position.z) + playerObj.forward * 0.2f;
 
@@ -182,7 +187,7 @@ public class PlayerScript : MonoBehaviour
         if (Input.GetKeyDown(dash))
             Dash();
 
-        if (Input.GetKeyDown(slideKey) && (!_isSliding) && (_horizontal != 0 || _vertical != 0))
+        if (Input.GetKeyDown(slideKey) && (!_isSliding) && _isGrounded)
             StartSlide();
 
         if (Input.GetKeyUp(slideKey))
@@ -317,7 +322,7 @@ public class PlayerScript : MonoBehaviour
             dashDirection.Normalize();
 
         if (_isGrounded)
-            _rb.AddForce(dashDirection * speed * dashIntensity, ForceMode.Impulse);
+            _rb.AddForce(dashDirection * (speed / 2) * dashIntensity, ForceMode.Impulse);
         else
             _rb.AddForce(dashDirection * speed * (dashIntensity * 1.2f) * airMultiplier, ForceMode.Impulse);
         _dashCooldown = 0.0f;
