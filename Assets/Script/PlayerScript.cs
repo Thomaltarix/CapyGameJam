@@ -6,35 +6,20 @@ public class PlayerScript : MonoBehaviour
 
     private static Color unactiveColor = new Color(130f / 255f, 130f / 255f, 130f / 255f, 200f / 255f);
     private static Color activeColor = new Color(255, 255, 255, 200);
+
+    public bool freeze;
+    public bool activeGrapple;
+
+    private Vector3 _velocityToSet;
+    private bool _enableMovementOnNextTouch;
+
+    [Header("References")]
     public Camera playerCamera;
-    public GameObject player;
+    public Transform playerObj;
     public GameObject canvaLeftArm;
     public GameObject canvaRightArm;
     public GameObject canvaLeftLeg;
     public GameObject canvaRightLeg;
-    private float _speed = 5.0f;
-
-    private const string SettingsPath = "Assets/configs/keybinds.json";
-
-    private float _dashCooldown = 0.0f;
-
-    private bool _isGrounded = true;
-
-    public bool freeze;
-    public bool activeGrapple;
-    private Vector3 _velocityToSet;
-    private bool _enableMovementOnNextTouch;
-    private bool _isLeftArm = true;
-    private bool _isRightArm = true;
-    private bool _isLeftLeg = true;
-    private bool _isRightLeg = true;
-
-    private bool _isSliding = false;
-    private float _slideTime;
-    private float _startYScale;
-
-    [Header("References")]
-    public Transform playerObj;
     private Rigidbody _rb;
 
     [Header("Movement")]
@@ -44,14 +29,19 @@ public class PlayerScript : MonoBehaviour
 
     [Header("Jumping")]
     public float jumpForce = 3.0f;
+    private bool _isGrounded = true;
 
     [Header("Dashing")]
     public float dashCooldown = 1.0f;
     public float dashIntensity = 10.0f;
+    private float _dashCooldown;
 
     [Header("Sliding")]
     public float slideForce = 5.0f;
     public float maxSlideTime = 0.5f;
+    private bool _isSliding;
+    private float _slideTime;
+    private float _startYScale;
 
     [Header("Wallrunning")]
     public float wallRunForce;
@@ -81,6 +71,11 @@ public class PlayerScript : MonoBehaviour
 
     private Vector3 _moveDirection;
 
+    private bool _isLeftArm = true;
+    private bool _isRightArm = true;
+    private bool _isLeftLeg = true;
+    private bool _isRightLeg = true;
+
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
@@ -99,8 +94,6 @@ public class PlayerScript : MonoBehaviour
     void Update()
     {
         _isGrounded = Physics.Raycast(transform.position + Vector3.up, Vector3.down , 1.1f);
-        Debug.DrawRay(transform.position + Vector3.up, Vector3.down * 1.1f, Color.red);
-        Debug.Log($"Grounded: {_isGrounded}");
 
         playerCamera.transform.position = new Vector3(playerObj.position.x, playerObj.position.y + 1.75f, playerObj.position.z) + playerObj.forward * 0.2f;
 
@@ -117,9 +110,6 @@ public class PlayerScript : MonoBehaviour
         MyInput();
         SpeedControl();
 
-        // if (Physics.Raycast(transform.position, Vector3.down, playerObj.localScale.y / 2 + 0.4f))
-        //     _isGrounded = true;
-
         if (freeze)
             _rb.linearVelocity = Vector3.zero;
 
@@ -131,7 +121,7 @@ public class PlayerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1)) {
             Image panelImage = canvaLeftArm.GetComponent<Image>();
             if (panelImage != null) {
-                panelImage.color = unactiveColor; // Change la couleur de l'arrière-plan
+                panelImage.color = unactiveColor;
             } else {
                 Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaLeftArm.");
             }
@@ -140,7 +130,7 @@ public class PlayerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha2)) {
             Image panelImage = canvaRightArm.GetComponent<Image>();
             if (panelImage != null) {
-                panelImage.color = unactiveColor; // Change la couleur de l'arrière-plan
+                panelImage.color = unactiveColor;
             } else {
                 Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaRightArm.");
             }
@@ -149,7 +139,7 @@ public class PlayerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3)) {
             Image panelImage = canvaLeftLeg.GetComponent<Image>();
             if (panelImage != null) {
-                panelImage.color = unactiveColor; // Change la couleur de l'arrière-plan
+                panelImage.color = unactiveColor;
             } else {
                 Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaLeftLeg.");
             }
@@ -158,7 +148,7 @@ public class PlayerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha4)) {
             Image panelImage = canvaRightLeg.GetComponent<Image>();
             if (panelImage != null) {
-                panelImage.color = unactiveColor; // Change la couleur de l'arrière-plan
+                panelImage.color = unactiveColor;
             } else {
                 Debug.LogWarning("Le composant Image n'a pas été trouvé sur canvaRightLeg.");
             }
@@ -257,9 +247,9 @@ public class PlayerScript : MonoBehaviour
     {
         _moveDirection = playerObj.forward * _vertical + playerObj.right * _horizontal;
         if(_isGrounded)
-            _rb.AddForce(_moveDirection.normalized * speed * 10f, ForceMode.Force);
+            _rb.AddForce(_moveDirection.normalized * speed, ForceMode.Force);
         else
-            _rb.AddForce(_moveDirection.normalized * speed * 10f * airMultiplier, ForceMode.Force);
+            _rb.AddForce(_moveDirection.normalized * speed * airMultiplier, ForceMode.Force);
     }
 
     private void SpeedControl()
@@ -326,7 +316,10 @@ public class PlayerScript : MonoBehaviour
         if (dashDirection != Vector3.zero)
             dashDirection.Normalize();
 
-        _rb.AddForce(dashDirection * speed * dashIntensity, ForceMode.Impulse);
+        if (_isGrounded)
+            _rb.AddForce(dashDirection * speed * dashIntensity, ForceMode.Impulse);
+        else
+            _rb.AddForce(dashDirection * speed * (dashIntensity * 1.2f) * airMultiplier, ForceMode.Impulse);
         _dashCooldown = 0.0f;
     }
 

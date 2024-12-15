@@ -2956,11 +2956,6 @@ Transform:
   - {fileID: 920798163}
   m_Father: {fileID: 651246841}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
---- !u!1 &284070813 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4016882461785575776, guid: c4808ef4a26800c94a6707d62181ac46, type: 3}
-  m_PrefabInstance: {fileID: 338705906}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &290502535
 GameObject:
   m_ObjectHideFlags: 0
@@ -10187,11 +10182,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2ac0519e239156d48a14dc33874021cf, type: 3}
   m_PrefabInstance: {fileID: 1011165057}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1011891068 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5297246032450897993, guid: c4808ef4a26800c94a6707d62181ac46, type: 3}
-  m_PrefabInstance: {fileID: 338705906}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1035013890
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14650,7 +14640,7 @@ GameObject:
   - component: {fileID: 1602981403}
   m_Layer: 0
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15260,6 +15250,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 8836597b06dfc4f42ab4b09a2b818c91, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 679eb2955c5f22b4497c62cedbf3f071, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6357154791423930442, guid: 679eb2955c5f22b4497c62cedbf3f071, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -18792,7 +18786,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2038305763}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c80eecb972770c84386726b44232041f, type: 3}
   m_Name: 
@@ -18811,35 +18805,34 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2038305763}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f93884f9ee0eac4cb8e824f507e91fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerCamera: {fileID: 0}
-  player: {fileID: 2038305763}
+  freeze: 0
+  activeGrapple: 0
+  playerCamera: {fileID: 1330606292}
+  playerObj: {fileID: 2038305769}
   canvaLeftArm: {fileID: 1128373302}
   canvaRightArm: {fileID: 1310465160}
   canvaLeftLeg: {fileID: 1505629238}
   canvaRightLeg: {fileID: 691612897}
-  freeze: 0
-  activeGrapple: 0
-  playerObj: {fileID: 2038305769}
-  speed: 100
-  airMultiplier: 2
-  groundDrag: 36.28
-  jumpForce: 1000
+  speed: 150
+  airMultiplier: 0.1
+  groundDrag: 4
+  jumpForce: 17
   dashCooldown: 1
-  dashIntensity: 10
-  slideForce: 5
-  maxSlideTime: 0.5
-  wallRunForce: 0
-  wallClimbSpeed: 0
+  dashIntensity: 2
+  slideForce: 7
+  maxSlideTime: 0.7
+  wallRunForce: 3
+  wallClimbSpeed: 2
   jumpKey: 32
   dash: 304
   slideKey: 306
-  upwardsRunKey: 113
-  downwardsRunKey: 101
+  upwardsRunKey: 273
+  downwardsRunKey: 274
 --- !u!54 &2038305767
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -18848,7 +18841,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2038305763}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 5
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -19555,3 +19548,4 @@ SceneRoots:
   - {fileID: 1651327715}
   - {fileID: 361561949}
   - {fileID: 1691938045}
+  - {fileID: 338705906}
