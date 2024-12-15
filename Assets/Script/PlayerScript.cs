@@ -235,7 +235,6 @@ public class PlayerScript : MonoBehaviour
 
     private void Jump()
     {
-        Debug.Log("Jumping");
         _rb.linearVelocity = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
 
         _rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);

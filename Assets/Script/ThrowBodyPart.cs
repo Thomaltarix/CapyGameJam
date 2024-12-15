@@ -15,6 +15,7 @@ public class ThrowBodyPart : MonoBehaviour
     public GameObject playerLeftArm;
     public GameObject playerRightArm;
     private PlayerScript player;
+    public Grappling grappling;
 
     [Header("Mini player view")]
     public GameObject canvaLeftArm;
@@ -112,7 +113,10 @@ public class ThrowBodyPart : MonoBehaviour
             if (arm == equippedArm) equippedArm = null;
 
             if (playerArm == playerLeftArm) activateLimbView(canvaLeftArm);
-            else if (playerArm == playerRightArm) activateLimbView(canvaRightArm);
+            else if (playerArm == playerRightArm) {
+                activateLimbView(canvaRightArm);
+                grappling.EnableGrappling();
+            }
 
             Debug.Log("Re-equipped arm: " + arm.name);
         }
@@ -128,7 +132,10 @@ public class ThrowBodyPart : MonoBehaviour
         }
 
         if (bp == leftArm) desactivateLimbView(canvaLeftArm);
-        else if (bp == rightArm) desactivateLimbView(canvaRightArm);
+        else if (bp == rightArm) {
+            desactivateLimbView(canvaRightArm);
+            grappling.DisableGrappling();
+        }
 
         bp.transform.parent = null;
         rb.useGravity = true;

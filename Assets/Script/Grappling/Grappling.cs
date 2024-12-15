@@ -1,6 +1,6 @@
 using UnityEngine;
 
-class Grappling : MonoBehaviour
+public class Grappling : MonoBehaviour
 {
     [Header("References")]
     private PlayerScript player;
@@ -23,6 +23,7 @@ class Grappling : MonoBehaviour
     [Header("Input")]
     public KeyCode grapplingKey = KeyCode.Mouse1;
     private bool _isGrappling = false;
+    private bool _canGrapple = true;
 
     private void Start()
     {
@@ -31,7 +32,7 @@ class Grappling : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKey(grapplingKey))
+        if (Input.GetKey(grapplingKey) && _canGrapple)
         {
             StartGrappling();
         }
@@ -95,6 +96,20 @@ class Grappling : MonoBehaviour
 
         cooldownTimer = cooldown;
         lineRenderer.enabled = false;
+    }
+
+    public void DisableGrappling()
+    {
+        if (!_canGrapple) return;
+        _canGrapple = false;
+        cam.gameObject.transform.GetChild(0).gameObject.SetActive(false);
+
+    }
+
+    public void EnableGrappling()
+    {
+        _canGrapple = true;
+        cam.gameObject.transform.GetChild(0).gameObject.SetActive(true);
     }
 
 }
